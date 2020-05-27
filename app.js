@@ -38,21 +38,21 @@ app.use(express.json());
 app.use(express.urlencoded({
   extended: false
 }));
-app.use(cookieParser('34628-45630-94520-93649'));
-// app.use(session({
-//   name: 'session-id',
-//   secret: '34628-45630-94520-93649',
-//   saveUninitialized: false,
-//   resave: false,
-//   store: new FileStore()
-// }))
+// app.use(cookieParser('34628-45630-94520-93649'));
+app.use(session({
+  name: 'session-id',
+  secret: '34628-45630-94520-93649',
+  saveUninitialized: false,
+  resave: false,
+  store: new FileStore()
+}))
 
 
 function auth(req, res, next) {
-  console.log(req.signedCookies);
-  // console.log(req.session);
+  // console.log(req.signedCookies);
+  console.log(req.session);
 
-  if (!req.signedCookies.user) {
+  if (!req.session.user) {
     var authHeader = req.headers.authorization;
 
     if (!authHeader) {
@@ -67,7 +67,7 @@ function auth(req, res, next) {
     var password = auth[1];
 
     if (username === 'admin' && password === 'password') {
-      res.cookie('user','admin', {signed : true})
+      req.session.user = 'admin';
       next();
     } else {
       var err = new Error('You are not authenticated!');
@@ -77,7 +77,7 @@ function auth(req, res, next) {
     }
 
   } else {
-    if(req.signedCookies.user === 'admin') {
+    if(req.session.user === 'admin') {
       next();
     } 
     else {
